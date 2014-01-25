@@ -14,10 +14,11 @@ import weka.core.Debug;
 public class Main {
 
     public static void main(String[] args) {
-        String line =   "I live in Matanzas.";
-        line = Preprocessor(line);
+        String line =   "laughing my ass off";
+        Preprocessor pre = new Preprocessor(line);
+        System.out.println(pre.result);
 
-        ListSentence ls = Freeling.ParseLine(line);
+        ListSentence ls = Freeling.ParseLine(pre.result);
         ListSentenceIterator sIt = new ListSentenceIterator(ls);
         while (sIt.hasNext()) {
             Sentence s = sIt.next();
@@ -27,10 +28,6 @@ public class Main {
 
         ArrayList<String> result = WekaParser("E:/test.arff");
         //for (String aResult : result) System.out.println(aResult);
-    }
-
-    private static String Preprocessor(String line) {
-        return line;
     }
 
     private static ArrayList<String> WekaParser(String path) {
