@@ -29,7 +29,7 @@ public class Preprocessor {
     public Integer consecutiveCases;
 
     Preprocessor(String tweet) {
-        this._tweet = this.tweet = tweet;
+        this._tweet = this.tweet = tweet+" ";
         this.CountPositivesEmoticons();
         this.CountNegativesEmoticons();
         this.CountCases();
@@ -99,7 +99,7 @@ public class Preprocessor {
             String[] line;
             while (reader.ready()){
                 line = reader.readLine().split("\t");
-                _tweet = _tweet.replaceAll("[^\\w]"+line[0]+"[^\\w]"," "+line[1]+" ");
+                _tweet = _tweet.replaceAll("[^\\w](?i:"+line[0]+")[^\\w]"," "+line[1]+" ");
             }
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.

@@ -14,7 +14,7 @@ import weka.core.Debug;
 public class Main {
 
     public static void main(String[] args) {
-        String line =   "@dave & @alex @ #Nauta!!! andy@gmail.com";
+        String line =   "it'll be fun, lol";
         Preprocessor pre = new Preprocessor(line);
         System.out.println(pre.result);
 
