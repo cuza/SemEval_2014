@@ -1,6 +1,10 @@
 import com.sun.javafx.collections.transformation.SortedList;
 import sun.misc.Regexp;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -16,8 +20,9 @@ import java.util.regex.Pattern;
  */
 public class Preprocessor {
 
-    public String tweet;
     private String _tweet;
+    private String _vulgarSlang="vulgar slang.dic";
+    public String tweet;
     public String result;
     public Integer positiveEmoticons;
     public Integer negativeEmoticons;
@@ -29,6 +34,7 @@ public class Preprocessor {
         this.CountNegativesEmoticons();
         this.CountCases();
         this.Tweetifier();
+
         this.Process();
     }
 
@@ -77,10 +83,10 @@ public class Preprocessor {
         tags[0] = '@';
         tags[1] = '#';
         for (Integer i = 0; i < 2; i++) {
-            Pattern p = Pattern.compile(tags[i] + "([^ ]+)");
+            Pattern p = Pattern.compile("(^|[^\\w])"+tags[i] + "([^ ]+)");
             Matcher m = p.matcher(_tweet);
             while (m.find()) { // Find each match in turn; String can't do this.
-                String name = m.group(1); // Access a submatch group; String can't do this.
+                String name = m.group(2); // Access a submatch group; String can't do this.
                 String aux = "";
                 aux += name.charAt(0);
                 aux = aux.toUpperCase() + name.substring(1);
@@ -88,6 +94,16 @@ public class Preprocessor {
             }
         }
 
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(_vulgarSlang));
+            String[] line;
+            while (reader.ready()){
+                line = reader.readLine().split("\t");
+                _tweet = _tweet.replaceAll("[^\\w]"+line[0]+"[^\\w]"," "+line[1]+" ");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
     }
 
     private void CountCases() {
