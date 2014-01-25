@@ -1,0 +1,19 @@
+#Archivos basura
+*~
+*.o
+*.out
+.nfs*
+tags
+CVS
+.svn
+.git
+.DS_Store
+._*
+Thumbs.db
+
+#Archivos de idea
+.idea
+.buildpath
+
+#Freeling
+data
