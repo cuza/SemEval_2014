@@ -21,10 +21,10 @@ import java.util.regex.Pattern;
 public class Preprocessor {
 
     private String _tweet;
-    private String _vulgarSlang = "vulgar slang.dic";
-    private String _htmlDic = "html.dic";
-    private String _positiveEmoticDic = "positive emoticons.dic";
-    private String _negativeEmoticDic = "negative emoticons.dic";
+    private String _vulgarSlang = "dicts/vulgar slang.dic";
+    private String _htmlDic = "dicts/html.dic";
+    private String _positiveEmoticDic = "dicts/positive emoticons.dic";
+    private String _negativeEmoticDic = "dicts/negative emoticons.dic";
     public String tweet;
     public String result;
     public Integer positiveEmoticons;
@@ -42,11 +42,12 @@ public class Preprocessor {
 
         this.Process();
     }
-    //RT@kikakikutz:
-    //andy.gonzalez@gmail.com
-    //andy.gonzalez@infonet.umcc.cu
-    private void UriParser() {
 
+    private void UriParser() {
+        String emailPattern = "(mailto:)?([-_\\.\\w])+@[\\.\\w]+\\.[\\w]{2,4}";
+        String urlPattern = "(https|http|ftp)://[^\\s]+";
+        _tweet = _tweet.replaceAll(urlPattern, " ");
+        //Todo: Buscar Regex para el correo
     }
 
     private void HtmlParser() {
