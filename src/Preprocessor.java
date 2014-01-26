@@ -21,7 +21,10 @@ import java.util.regex.Pattern;
 public class Preprocessor {
 
     private String _tweet;
-    private String _vulgarSlang="vulgar slang.dic";
+    private String _vulgarSlang = "vulgar slang.dic";
+    private String _htmlDic = "html.dic";
+    private String _positiveEmoticDic = "positive emoticons.dic";
+    private String _negativeEmoticDic = "negative emoticons.dic";
     public String tweet;
     public String result;
     public Integer positiveEmoticons;
@@ -29,13 +32,34 @@ public class Preprocessor {
     public Integer consecutiveCases;
 
     Preprocessor(String tweet) {
-        this._tweet = this.tweet = tweet+" ";
+        this._tweet = this.tweet = tweet + " ";
+        this.HtmlParser();
         this.CountPositivesEmoticons();
         this.CountNegativesEmoticons();
         this.CountCases();
+        this.UriParser();
         this.Tweetifier();
 
         this.Process();
+    }
+    //RT@kikakikutz:
+    //andy.gonzalez@gmail.com
+    //andy.gonzalez@infonet.umcc.cu
+    private void UriParser() {
+
+    }
+
+    private void HtmlParser() {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(_htmlDic));
+            String[] line;
+            while (reader.ready()) {
+                line = reader.readLine().split("\t");
+                _tweet = _tweet.replaceAll(line[0], line[1]);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void Process() {
@@ -83,7 +107,7 @@ public class Preprocessor {
         tags[0] = '@';
         tags[1] = '#';
         for (Integer i = 0; i < 2; i++) {
-            Pattern p = Pattern.compile("(^|[^\\w])"+tags[i] + "([^ ]+)");
+            Pattern p = Pattern.compile("(^|[^\\w])" + tags[i] + "([^ ]+)");
             Matcher m = p.matcher(_tweet);
             while (m.find()) { // Find each match in turn; String can't do this.
                 String name = m.group(2); // Access a submatch group; String can't do this.
@@ -97,9 +121,9 @@ public class Preprocessor {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(_vulgarSlang));
             String[] line;
-            while (reader.ready()){
+            while (reader.ready()) {
                 line = reader.readLine().split("\t");
-                _tweet = _tweet.replaceAll("[^\\w](?i:"+line[0]+")[^\\w]"," "+line[1]+" ");
+                _tweet = _tweet.replaceAll("[^\\w](?i:" + line[0] + ")[^\\w]", " " + line[1] + " ");
             }
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
@@ -110,9 +134,31 @@ public class Preprocessor {
     }
 
     private void CountNegativesEmoticons() {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(_negativeEmoticDic));
+            String[] line;
+            while (reader.ready()) {
+                line = reader.readLine().split("\t");
+                negativeEmoticons += _tweet.split(line[0]).length - 1;
+                _tweet = _tweet.replaceAll(line[0], line[1]);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void CountPositivesEmoticons() {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(_positiveEmoticDic));
+            String[] line;
+            while (reader.ready()) {
+                line = reader.readLine().split("\t");
+                positiveEmoticons += _tweet.split(line[0]).length - 1;
+                _tweet = _tweet.replaceAll(line[0], line[1]);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
