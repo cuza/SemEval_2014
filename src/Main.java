@@ -26,8 +26,8 @@ public class Main {
             Freeling.printDepTree(0, tree);
         }
 
-        ArrayList<String> result = WekaParser("E:/test.arff");
-        //for (String aResult : result) System.out.println(aResult);
+        ArrayList<String> result = WekaParser("arffs/test.arff");
+        for (String aResult : result) System.out.println(aResult);
     }
 
     private static ArrayList<String> WekaParser(String path) {
