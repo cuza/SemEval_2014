@@ -66,6 +66,17 @@ public class Preprocessor {
     private void Process() {
         Stack<Integer> s = new Stack<Integer>();
         List<Integer> remove = new ArrayList<Integer>();
+        boolean[] trouble = new boolean[256*256];
+        trouble['$'] = true;
+        trouble['%'] = true;
+        trouble['#'] = true;
+        trouble['@'] = true;
+        trouble['*'] = true;
+        trouble['&'] = true;
+        trouble['('] = true;
+        trouble[')'] = true;
+        trouble['"'] = true;
+
         result = "";
         _tweet = _tweet.replace('.', ';');
         if (_tweet.charAt(_tweet.length() - 1) != '.') {
@@ -97,7 +108,7 @@ public class Preprocessor {
         }
 //        SortedList<Integer> sRemove = new SortedList<Integer>(remove);
         for (Integer i = 0; i < _tweet.length(); i++) {
-            if (!remove.contains(i)) {
+            if (!(remove.contains(i) || trouble[_tweet.charAt(i)])) {
                 result += _tweet.charAt(i);
             }
         }
