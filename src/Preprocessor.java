@@ -27,16 +27,14 @@ public class Preprocessor {
     private String _negativeEmoticDic = "dicts/negative emoticons.dic";
     public String tweet;
     public String result;
-    public Integer positiveEmoticons;
-    public Integer negativeEmoticons;
-    public Integer consecutiveCases;
+    public Integer positiveEmoticons = 0;
+    public Integer negativeEmoticons = 0;
 
     Preprocessor(String tweet) {
         this._tweet = this.tweet = tweet + " ";
         this.HtmlParser();
         this.CountPositivesEmoticons();
         this.CountNegativesEmoticons();
-        this.CountCases();
         this.UriParser();
         this.Tweetifier();
 
@@ -142,17 +140,14 @@ public class Preprocessor {
         }
     }
 
-    private void CountCases() {
-    }
-
     private void CountNegativesEmoticons() {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(_negativeEmoticDic));
             String[] line;
             while (reader.ready()) {
                 line = reader.readLine().split("\t");
-                negativeEmoticons += _tweet.split(line[0]).length - 1;
-                _tweet = _tweet.replaceAll(line[0], line[1]);
+                negativeEmoticons += _tweet.split(Pattern.quote(line[0])).length - 1;
+                _tweet = _tweet.replaceAll(Pattern.quote(line[0]), line[1]);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -165,8 +160,8 @@ public class Preprocessor {
             String[] line;
             while (reader.ready()) {
                 line = reader.readLine().split("\t");
-                positiveEmoticons += _tweet.split(line[0]).length - 1;
-                _tweet = _tweet.replaceAll(line[0], line[1]);
+                positiveEmoticons += _tweet.split(Pattern.quote(line[0])).length - 1;
+                _tweet = _tweet.replaceAll(Pattern.quote(line[0]), line[1]);
             }
         } catch (IOException e) {
             e.printStackTrace();

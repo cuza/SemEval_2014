@@ -1,3 +1,5 @@
+import SentiGraph.Graph;
+
 import java.io.*;
 import java.util.*;
 
@@ -36,17 +38,25 @@ public class Resource {
     }
 
     public void Save() throws IOException {
-        for (String key:Frecuency.keySet()){
+        for (String key:Frecuency.keySet())
             _writerFrec.write(String.format("%1$s:%2$s\r\n",key,Frecuency.get(key)));
-        }
         _writerFrec.close();
         for (String key:Link.keySet()){
             _writerLink.write(String.format("%1$s:",key));
-            for (String val:Link.get(key)){
+            for (String val:Link.get(key))
                 _writerLink.write(String.format("%1$s;",val));
-            }
             _writerLink.write("\r\n");
         }
         _writerLink.close();
+    }
+
+    public Graph getGraph() {
+        Graph graph = new Graph(0);
+        for (String s:Frecuency.keySet())
+            graph.AddNode(s);
+        for (String s:Frecuency.keySet())
+            for (String ss:Link.get(s))
+                graph.AddEdge(s,ss,1);
+        return graph;
     }
 }
