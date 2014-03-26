@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -21,24 +22,167 @@ import java.util.regex.Pattern;
 public class Preprocessor {
 
     private String _tweet;
-    private String _vulgarSlang = "dicts/vulgar slang.dic";
-    private String _htmlDic = "dicts/html.dic";
-    private String _positiveEmoticDic = "dicts/positive emoticons.dic";
-    private String _negativeEmoticDic = "dicts/negative emoticons.dic";
+
+    private static String _vulgarSlang = "dicts/vulgar slang.dic";
+    private static ArrayList<String> __vulgarSlang;
+
+    private ArrayList<String> getVulgarSlang() {
+        if (__vulgarSlang == null) {
+            __vulgarSlang = new ArrayList<String>();
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(_vulgarSlang));
+                while (reader.ready())
+                    __vulgarSlang.add(reader.readLine());
+            } catch (IOException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+        }
+        return __vulgarSlang;
+    }
+
+    private static String _positiveEmoticDic = "dicts/positive emoticons.dic";
+    private static ArrayList<String> __positiveEmoticDic;
+
+    private ArrayList<String> getPositiveEmoticDic() {
+        if (__positiveEmoticDic == null) {
+            __positiveEmoticDic = new ArrayList<String>();
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(_positiveEmoticDic));
+                while (reader.ready())
+                    __positiveEmoticDic.add(reader.readLine());
+            } catch (IOException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+        }
+        return __positiveEmoticDic;
+    }
+
+    private static String _negativeEmoticDic = "dicts/negative emoticons.dic";
+    private static ArrayList<String> __negativeEmoticDic;
+
+    private ArrayList<String> getNegativeEmoticDic() {
+        if (__negativeEmoticDic == null) {
+            __negativeEmoticDic = new ArrayList<String>();
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(_negativeEmoticDic));
+                while (reader.ready())
+                    __negativeEmoticDic.add(reader.readLine());
+            } catch (IOException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+        }
+        return __negativeEmoticDic;
+    }
+
+    private static String _ngramasDic = "dicts/ngrams.dic";
+    private static HashMap<String, Double> __ngramasDic;
+
+    private HashMap<String, Double> getNgramsDic() {
+        if (__ngramasDic == null) {
+            __ngramasDic = new HashMap<String, Double>();
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(_ngramasDic));
+                while (reader.ready()) {
+                    String[] line = reader.readLine().split("\t");
+                    if (!__ngramasDic.containsKey(line[0])) {
+                        __ngramasDic.put(line[0], Double.parseDouble(line[1]));
+                    } else {
+                        __ngramasDic.put(line[0], (__ngramasDic.get(line[0]) + Double.parseDouble(line[1])) / 2.0);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+        }
+        return __ngramasDic;
+    }
+
+    private static String _pairsDic = "dicts/pairs.dic";
+    private static HashMap<String, Double> __pairsDic;
+
+    private HashMap<String, Double> getPairsDic() {
+        if (__pairsDic == null) {
+            __pairsDic = new HashMap<String, Double>();
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(_pairsDic));
+                while (reader.ready()) {
+                    String[] line = reader.readLine().split("\t");
+                    if (!__pairsDic.containsKey(line[0])) {
+                        __pairsDic.put(line[0], Double.parseDouble(line[1]));
+                    } else {
+                        __pairsDic.put(line[0], (__pairsDic.get(line[0]) + Double.parseDouble(line[1])) / 2.0);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+        }
+        return __pairsDic;
+    }
+
+    private static String _hashtagDic = "dicts/hashtags.dic";
+    private static ArrayList<String> __hashtagDic;
+
+    private ArrayList<String> getHashtagDic() {
+        if (__hashtagDic == null) {
+            __hashtagDic = new ArrayList<String>();
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(_hashtagDic));
+                while (reader.ready())
+                    __hashtagDic.add(reader.readLine());
+            } catch (IOException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+        }
+        return __hashtagDic;
+    }
+
     public String tweet;
     public String result;
     public Integer positiveEmoticons = 0;
     public Integer negativeEmoticons = 0;
+    public Double ngrams = 0.0;
+    public Double pairs = 0.0;
+    public Integer positiveHashtags = 0;
+    public Integer negativeHashtags = 0;
 
     Preprocessor(String tweet) {
         this._tweet = this.tweet = tweet + " ";
         this.HtmlParser();
+        this.CountHashTags();
+        this.CountNgrams();
+        this.CountPairs();
         this.CountPositivesEmoticons();
         this.CountNegativesEmoticons();
         this.UriParser();
         this.Tweetifier();
 
         this.Process();
+    }
+
+    private void CountPairs() {
+        for (String line : getPairsDic().keySet()){
+            String[] _pairs = line.split("---");
+            if(_tweet.contains(_pairs[0]) && _tweet.contains(_pairs[1]))
+                ngrams += getPairsDic().get(line);
+        }
+    }
+
+    private void CountNgrams() {
+        for (String line : getNgramsDic().keySet())
+            ngrams += (_tweet.split(Pattern.quote(line)).length - 1) * getNgramsDic().get(line);
+    }
+
+    private void CountHashTags() {
+        String[] line;
+
+        for (String _line : getHashtagDic()) {
+            line = _line.split("\t");
+            if (line[1].equals("positive"))
+                positiveHashtags += _tweet.split(Pattern.quote(line[0])).length - 1;
+            else
+                negativeHashtags += _tweet.split(Pattern.quote(line[0])).length - 1;
+        }
     }
 
     private void UriParser() {
@@ -49,22 +193,13 @@ public class Preprocessor {
     }
 
     private void HtmlParser() {
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(_htmlDic));
-            String[] line;
-            while (reader.ready()) {
-                line = reader.readLine().split("\t");
-                _tweet = _tweet.replaceAll(line[0], line[1]);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        _tweet = Html.fromHtml();
     }
 
     private void Process() {
         Stack<Integer> s = new Stack<Integer>();
         List<Integer> remove = new ArrayList<Integer>();
-        boolean[] trouble = new boolean[256*256];
+        boolean[] trouble = new boolean[256 * 256];
         trouble['$'] = true;
         trouble['%'] = true;
         trouble['#'] = true;
@@ -128,45 +263,31 @@ public class Preprocessor {
             }
         }
 
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(_vulgarSlang));
-            String[] line;
-            while (reader.ready()) {
-                line = reader.readLine().split("\t");
-                _tweet = _tweet.replaceAll("[^\\w](?i:" + line[0] + ")[^\\w]", " " + line[1] + " ");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        String[] line;
+        for (String _line : getVulgarSlang()) {
+            line = _line.split("\t");
+            _tweet = _tweet.replaceAll("[^\\w](?i:" + line[0] + ")[^\\w]", " " + line[1] + " ");
         }
     }
 
     private void CountNegativesEmoticons() {
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(_negativeEmoticDic));
-            String[] line;
-            while (reader.ready()) {
-                line = reader.readLine().split("\t");
-                negativeEmoticons += _tweet.split(Pattern.quote(line[0])).length - 1;
-                _tweet = _tweet.replaceAll(Pattern.quote(line[0]), line[1]);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        String[] line;
+
+        for (String _line : getNegativeEmoticDic()) {
+            line = _line.split("\t");
+            negativeEmoticons += _tweet.split(Pattern.quote(line[0])).length - 1;
+            _tweet = _tweet.replaceAll(Pattern.quote(line[0]), line[1]);
         }
     }
 
     private void CountPositivesEmoticons() {
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(_positiveEmoticDic));
-            String[] line;
-            while (reader.ready()) {
-                line = reader.readLine().split("\t");
-                positiveEmoticons += _tweet.split(Pattern.quote(line[0])).length - 1;
-                _tweet = _tweet.replaceAll(Pattern.quote(line[0]), line[1]);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        String[] line;
+
+        for (String _line : getPositiveEmoticDic()) {
+            line = _line.split("\t");
+            positiveEmoticons += _tweet.split(Pattern.quote(line[0])).length - 1;
+            _tweet = _tweet.replaceAll(Pattern.quote(line[0]), line[1]);
         }
     }
-
 }
 

@@ -24,53 +24,50 @@ public class Main {
     public static void main(String[] args) {
         try {
 
-//            CorpusReader negCp = new CorpusReader("input/neg.tsv");
-//            CorpusReader posCp = new CorpusReader("input/pos.tsv");
-//            CorpusReader neuCp = new CorpusReader("input/neu.tsv");
+            CorpusReader negCp = new CorpusReader("input/neg.tsv");
+            CorpusReader posCp = new CorpusReader("input/pos.tsv");
+            CorpusReader neuCp = new CorpusReader("input/neu.tsv");
 
-//            Resource negRes = CreateResource(negCp, "output/res.neg");
-//            Resource posRes = CreateResource(posCp, "output/res.pos");
-//            Resource neuRes = CreateResource(neuCp, "output/res.neu");
+            Resource negRes = CreateResource(negCp, "output/res.neg");
+            Resource posRes = CreateResource(posCp, "output/res.pos");
+            Resource neuRes = CreateResource(neuCp, "output/res.neu");
 
-//            SentiMesure sm = new SentiMesure(posRes.getGraph(),negRes.getGraph(),neuRes.getGraph(),"output/mes.tsv");
+            SentiMesure sm = new SentiMesure(posRes.getGraph(), negRes.getGraph(), neuRes.getGraph(), "output/mes.tsv");
 
-            SentiMesure sm = new SentiMesure("output/mes.tsv");
+//            SentiMesure sm = new SentiMesure("output/mes.tsv");
             ArrayList<String> model = TrainModel(sm, "input/neg.tsv", "input/neu.tsv", "input/pos.tsv");
-            SaveModel(model,"arffs/model.arff");
+            SaveModel(model, "arffs/model.arff");
         } catch (Exception e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
     }
 
     private static void SaveModel(ArrayList<String> model, String path) {
-            String buffer = "@relation Evaluation\r\n" +
-                    "@attribute pos numeric\r\n" +
-                    "@attribute neg numeric\r\n" +
-                    "@attribute obj numeric\r\n" +
-                    "@attribute excl numeric\r\n" +
-                    "@attribute inter numeric\r\n" +
-                    "@attribute happy_emot numeric\r\n" +
-                    "@attribute sad_emot numeric\r\n" +
-                    "@attribute pos_count numeric\r\n" +
-                    "@attribute neg_count numeric\r\n" +
-                    "@attribute pos_measured_count numeric\r\n" +
-                    "@attribute neg_measured_count numeric\r\n" +
-                    "@attribute obj_measured_count numeric\r\n" +
-                    "@attribute neu numeric\r\n" +
-                    "@attribute neu_real_count numeric\r\n" +
-                    "@attribute WORDS_count numeric\r\n" +
-                    "@attribute WORDS_pos numeric\r\n" +
-                    "@attribute WORDS_pos_count_res numeric\r\n" +
-                    "@attribute WORDS_pos_count_dict numeric\r\n" +
-                    "@attribute WORDS_neg numeric\r\n" +
-                    "@attribute WORDS_neg_count_res numeric\r\n" +
-                    "@attribute WORDS_neg_count_dict numeric\r\n" +
-                    "@attribute eval {positive,negative,neutral}\r\n" +
-                    "@data" +
-                    "\r\n";
-            for (String line : model)
-                buffer += line + "\r\n";
-            WriteText(path, buffer);
+        String buffer = "@relation Evaluation\r\n" +
+                "@attribute pos numeric\r\n" +
+                "@attribute neg numeric\r\n" +
+                "@attribute obj numeric\r\n" +
+                "@attribute excl numeric\r\n" +
+                "@attribute inter numeric\r\n" +
+                "@attribute happy_emot numeric\r\n" +
+                "@attribute sad_emot numeric\r\n" +
+                "@attribute pos_count numeric\r\n" +
+                "@attribute neg_count numeric\r\n" +
+                "@attribute pos_measured_count numeric\r\n" +
+                "@attribute neg_measured_count numeric\r\n" +
+                "@attribute obj_measured_count numeric\r\n" +
+                "@attribute neu numeric\r\n" +
+                "@attribute neu_real_count numeric\r\n" +
+                "@attribute ngrams numeric\r\n" +
+                "@attribute pairs numeric\r\n" +
+                "@attribute positiveHashtags numeric\r\n" +
+                "@attribute negativeHashtags numeric\r\n" +
+                "@attribute eval {positive,negative,neutral}\r\n" +
+                "@data" +
+                "\r\n";
+        for (String line : model)
+            buffer += line + "\r\n";
+        WriteText(path, buffer);
     }
 
     private static ArrayList<String> TrainModel(SentiMesure sm, String negPath, String neuPath, String posPath) throws IOException {
@@ -79,13 +76,13 @@ public class Main {
         CorpusReader posCp = new CorpusReader(posPath);
         CorpusReader neuCp = new CorpusReader(neuPath);
         CorpusReader[] cp = new CorpusReader[3];
-        cp[0]= negCp;
-        cp[1]= posCp;
-        cp[2]= neuCp;
+        cp[0] = negCp;
+        cp[1] = posCp;
+        cp[2] = neuCp;
         String[] classify = new String[3];
-        classify[0]="negative";
-        classify[1]="positive";
-        classify[2]="neutral";
+        classify[0] = "negative";
+        classify[1] = "positive";
+        classify[2] = "neutral";
 
         TreeSet<String> pwords = new TreeSet<String>();
         TreeSet<String> nwords = new TreeSet<String>();
@@ -156,33 +153,11 @@ public class Main {
 
                         neu = 0.0,
                         neu_real_count = 0.0,
-
-                        WORDS_count = 0.0,
-                        WORDS_pos = 0.0,
-                        WORDS_pos_count_res = 0.0,
-                        WORDS_pos_count_dict = 0.0,
-                        WORDS_neg = 0.0,
-                        WORDS_neg_count_res = 0.0,
-                        WORDS_neg_count_dict = 0.0;
-
-                ArrayList<String> WORDS = new ArrayList<String>();
-                Pattern pattern = Pattern.compile("\\W([A-Z]+)\\W");
-                Matcher matcher = pattern.matcher(pre.result);
-                while (matcher.find())
-                    WORDS.add(pre.result.substring(matcher.start(), matcher.end()));
-                for (String WORD : WORDS) {
-                    if (pwords.contains(WORD.toLowerCase()))
-                        WORDS_pos_count_dict += 1.0;
-                    if (nwords.contains(WORD.toLowerCase()))
-                        WORDS_neg_count_dict += 1.0;
-                    if (sm.Mesures.containsKey(WORD)) {
-                        Mesure kk = sm.Mesures.get(WORD);
-                        WORDS_pos_count_res += kk.getPositive() > 0 ? 1 : 0;
-                        WORDS_neg_count_res += kk.getNegative() > 0 ? 1 : 0;
-                        WORDS_pos += kk.getPositive();
-                        WORDS_neg += kk.getNegative();
-                    }
-                }
+                        ngrams = 0.0,
+                        pairs = 0.0;
+                Integer
+                        positiveHashtags = 0,
+                        negativeHashtags = 0;
 
                 excl = line.split("!").length - 1.0;
                 interr = line.split("\\?").length - 1.0;
@@ -190,6 +165,10 @@ public class Main {
                 interr /= excl + interr;
                 happy_emot += pre.positiveEmoticons;
                 sad_emot += pre.negativeEmoticons;
+                ngrams = pre.ngrams;
+                pairs = pre.pairs;
+                positiveHashtags = pre.positiveHashtags;
+                negativeHashtags = pre.negativeHashtags;
 
                 for (int i = 0; i < lemmas.size(); i++) {
                     if (sm.Mesures.containsKey(lemmas.get(i))) {
@@ -211,7 +190,7 @@ public class Main {
                     if (nwords.contains(values.get(i)) || nwords.contains(lemmas.get(i)))
                         neg_count += 1.0;
                 }
-                model.add(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s"
+                model.add(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s"
                         , pos.toString().replace(',', '.')
                         , neg.toString().replace(',', '.')
                         , obj.toString().replace(',', '.')
@@ -226,13 +205,10 @@ public class Main {
                         , obj_measured_count.toString().replace(',', '.')
                         , neu.toString().replace(',', '.')
                         , neu_real_count.toString().replace(',', '.')
-                        , WORDS_count.toString().replace(',', '.')
-                        , WORDS_pos.toString().replace(',', '.')
-                        , WORDS_pos_count_res.toString().replace(',', '.')
-                        , WORDS_pos_count_dict.toString().replace(',', '.')
-                        , WORDS_neg.toString().replace(',', '.')
-                        , WORDS_neg_count_res.toString().replace(',', '.')
-                        , WORDS_neg_count_dict.toString().replace(',', '.')
+                        , ngrams.toString().replace(',', '.')
+                        , pairs.toString().replace(',', '.')
+                        , positiveHashtags.toString().replace(',', '.')
+                        , negativeHashtags.toString().replace(',', '.')
                         , classify[ii]
                 ));
             }
