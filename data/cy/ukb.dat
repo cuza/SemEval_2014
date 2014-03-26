@@ -1,8 +1,0 @@
-<RelationFile>
-../common/xwn.dat
-</RelationFile>
-<PageRankParameters>
-Threshold 0.03
-MaxIterations 10
-Damping 0.85
-</PageRankParameters>
