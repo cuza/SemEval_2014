@@ -146,24 +146,25 @@ public class Preprocessor {
     public Integer positiveHashtags = 0;
     public Integer negativeHashtags = 0;
 
-    Preprocessor(String tweet) {
+    Preprocessor(String tweet, boolean b) {
         this._tweet = this.tweet = tweet + " ";
         this.HtmlParser();
-        this.CountHashTags();
-        this.CountNgrams();
-        this.CountPairs();
+        if (b) {
+            this.CountHashTags();
+            this.CountNgrams();
+            this.CountPairs();
+        }
         this.CountPositivesEmoticons();
         this.CountNegativesEmoticons();
         this.UriParser();
         this.Tweetifier();
-
         this.Process();
     }
 
     private void CountPairs() {
-        for (String line : getPairsDic().keySet()){
+        for (String line : getPairsDic().keySet()) {
             String[] _pairs = line.split("---");
-            if(_tweet.contains(_pairs[0]) && _tweet.contains(_pairs[1]))
+            if (_tweet.contains(_pairs[0]) && _tweet.contains(_pairs[1]))
                 ngrams += getPairsDic().get(line);
         }
     }
@@ -175,7 +176,6 @@ public class Preprocessor {
 
     private void CountHashTags() {
         String[] line;
-
         for (String _line : getHashtagDic()) {
             line = _line.split("\t");
             if (line[1].equals("positive"))

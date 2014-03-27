@@ -1,18 +1,13 @@
 import Mesure.Mesure;
 import Mesure.SentiMesure;
 import SentiGraph.Graph;
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.RegularExpression;
 import edu.upc.freeling.*;
 import weka.classifiers.functions.SMO;
-import weka.core.FastVector;
 import weka.core.Instances;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import weka.classifiers.Evaluation;
 import weka.filters.unsupervised.attribute.Remove;
@@ -24,17 +19,17 @@ public class Main {
     public static void main(String[] args) {
         try {
 
-            CorpusReader negCp = new CorpusReader("input/neg.tsv");
-            CorpusReader posCp = new CorpusReader("input/pos.tsv");
-            CorpusReader neuCp = new CorpusReader("input/neu.tsv");
+//            CorpusReader negCp = new CorpusReader("input/neg.tsv");
+//            CorpusReader posCp = new CorpusReader("input/pos.tsv");
+//            CorpusReader neuCp = new CorpusReader("input/neu.tsv");
+//
+//            Resource negRes = CreateResource(negCp, "output/res.neg");
+//            Resource posRes = CreateResource(posCp, "output/res.pos");
+//            Resource neuRes = CreateResource(neuCp, "output/res.neu");
+//
+//            SentiMesure sm = new SentiMesure(posRes.getGraph(), negRes.getGraph(), neuRes.getGraph(), "output/mes.tsv");
 
-            Resource negRes = CreateResource(negCp, "output/res.neg");
-            Resource posRes = CreateResource(posCp, "output/res.pos");
-            Resource neuRes = CreateResource(neuCp, "output/res.neu");
-
-            SentiMesure sm = new SentiMesure(posRes.getGraph(), negRes.getGraph(), neuRes.getGraph(), "output/mes.tsv");
-
-//            SentiMesure sm = new SentiMesure("output/mes.tsv");
+            SentiMesure sm = new SentiMesure("output/mes.tsv");
             ArrayList<String> model = TrainModel(sm, "input/neg.tsv", "input/neu.tsv", "input/pos.tsv");
             SaveModel(model, "arffs/model.arff");
         } catch (Exception e) {
@@ -98,7 +93,7 @@ public class Main {
             while ((line = cp[ii].GetLine()) != null) {
                 if (line.equals("Not Available")) continue;
 
-                Preprocessor pre = new Preprocessor(line);
+                Preprocessor pre = new Preprocessor(line, false);
                 System.out.println(pp++ + ":>>> " + pre.result);
                 ArrayList<String> lemmas = new ArrayList<String>();
                 ArrayList<String> values = new ArrayList<String>();
@@ -190,6 +185,7 @@ public class Main {
                     if (nwords.contains(values.get(i)) || nwords.contains(lemmas.get(i)))
                         neg_count += 1.0;
                 }
+                model.add("#\t"+pre.tweet);
                 model.add(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s"
                         , pos.toString().replace(',', '.')
                         , neg.toString().replace(',', '.')
@@ -222,7 +218,7 @@ public class Main {
             String line;
             int pp = 0;
             while ((line = cp.GetLine()) != null) {
-                Preprocessor pre = new Preprocessor(line);
+                Preprocessor pre = new Preprocessor(line,false);
                 System.out.println(pp++ + ":>>> " + pre.result);
                 ListSentence ls = Freeling.ParseLine(pre.result);
 
