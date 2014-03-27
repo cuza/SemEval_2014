@@ -1,0 +1,36 @@
+>:[	sad
+:-(	sad
+:(	sad
+:-c	sad
+:c	sad
+:-<	sad
+:?C	sad
+:<	sad
+:-[	sad
+:[	sad
+:{	sad
+;(	sad
+:-||	Angry
+:@	Angry
+>:(	Angry
+:'-(	Crying
+:'(	Crying
+>:)	Evil
+>;)	Evil
+>:-)	Evil
+}:-)	Devilish
+}:)	Devilish
+3:-)	Devilish
+3:)	Devilish
+D:<	disgust
+D:	disgust
+D8	disgust
+D;	disgust
+D=	disgust
+DX	disgust
+v.v	disgust
+D-':	disgust
+:-###..	Being sick
+:###..	Being sick
+<:-|	Dumb
+</3	broken-heart
