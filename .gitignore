@@ -1,4 +1,4 @@
-#Archivos basura
+# archivos basura creados por mac y windows
 *~
 *.o
 *.out
@@ -11,9 +11,13 @@ CVS
 ._*
 Thumbs.db
 
-#Archivos de idea
-.idea
+# archivos creados por los IDEs Eclipse, Zend Studio, Netbeans, PHPStorm y TextMate2
 .buildpath
+.project
+.settings
+nbproject
+.idea
+.tm_properties
 
 #Freeling
 data
